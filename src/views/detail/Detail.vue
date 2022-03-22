@@ -7,6 +7,7 @@
             ref="scroll" 
             :probeType="3"
             @scroll="contentScroll"> 
+      
       <!-- 轮播图 -->
       <detail-swiper :topImages="topImages"/>
       <!-- 商品基本信息的展示 -->
@@ -21,10 +22,13 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo" />
       <!-- 商品推荐信息 -->
       <goods-list ref="recommend" :goods="recommends" />
+    
+
     </scroll>
     <!-- 底部工具栏 -->
-    <detail-bottom-bar/>
+    <detail-bottom-bar @addCart="addToCart" />
     <!-- 回到顶部的组件 -->
+    <back-top @click.native="backClick" v-show="isshowBackTop"></back-top>
   </div>
 </template>
 
@@ -40,10 +44,11 @@ import DetailBottomBar from './childComps/DetailBottomBar';
 
 import Scroll from 'components/common/scroll/Scroll.vue';
 import GoodsList from 'components/content/goods/GoodsList'
+import BackTop from 'components/content/backTop/BackTop'
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
 import {debounce} from "common/utils"
-import {itemListenerMixin} from "common/mixin"
+import {itemListenerMixin, backTopMixin} from "common/mixin"
 
 export default {
   name: "Detail", 
@@ -58,9 +63,9 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodsList,
-    
+    BackTop
   }, 
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       iid: null,
@@ -172,7 +177,30 @@ export default {
           this.$refs.nav.currentIndex = this.currentIndex
         }
       }
+      // 3.判断BackTop是否显示
+        this.listenShowBackTop(position)
     },
+    // 监听回到顶部的方法
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0) 
+    },
+    // 添加到购物车addCart的方法
+    addToCart() {
+      console.log('在购物车车了~')
+      // 1.获取购物车需要展示的信息
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goodsInfo.title;
+      product.desc = this.goodsInfo.desc;
+      product.price = this.goodsInfo.realPrice;
+      product.iid = this.iid;
+
+
+      // 2.将商品添加到购物车
+      // 可以使用vuex保存商品
+      // this.$store.commit('addCart', product)
+      this.$store.dispatch('addCart', product)
+    }
   }
 }
 </script>

@@ -54,7 +54,7 @@
 
   import { getHomeMultidata, getHomeGoods} from "network/home";
   import { debounce } from 'common/utils'
-  import {itemListenerMixin} from 'common/mixin'
+  import {itemListenerMixin,  backTopMixin} from 'common/mixin'
 
   export default {
     name: "Home",
@@ -89,7 +89,7 @@
 
       }
     },
-    mixin: [itemListenerMixin],
+    mixins: [itemListenerMixin,  backTopMixin],
     computed: {
       showGoods() {
         return this.goods[this.currentType].list
@@ -143,9 +143,9 @@
         this.$refs.tabControl2.currentIndex = index;
       },  
       // 监听回到顶部的方法
-      backClick() {
-        this.$refs.scroll.scrollTo(0, 0) 
-      },
+      // backClick() {
+      //   this.$refs.scroll.scrollTo(0, 0) 
+      // },
       // 加载更多的方法
       loadMore() {
         this.getHomeGoods(this.currentType)
@@ -154,7 +154,7 @@
       contentScroll(position){
         // y是负值，需要先转成正值
         // 1.判断BackTop是否显示
-        this.isshowBackTop = (-position.y) > 1000 
+        this.listenShowBackTop(position)
         
         // 2.决定tabControl是否吸顶（position:flex）
         this.isTabFixed = (-position.y) > this.tabOffsetTop

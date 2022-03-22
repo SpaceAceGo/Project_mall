@@ -33,7 +33,7 @@ export const backTopMixin = {
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 500) 
     },
-    // 是否回到顶部
+    // 判断回到顶部是否显示
     listenShowBackTop(position) {
       this.isshowBackTop = (-position.y) > 1000 
     }

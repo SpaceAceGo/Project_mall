@@ -103,6 +103,8 @@
     <li>分类列表99</li>
     <li>分类列表100</li>
   </ul>
+  <!-- 回到顶部的组件 -->
+  <back-top @click.native="backClick" v-show="isshowBackTop"></back-top>
 </div>
 
 </template>
@@ -112,7 +114,8 @@
 // 然后对它进行包装和封装
 // 这样如果这个better-scroll已经废弃的话
 // 不用修改封装,修改引用就可以了
-  import BScroll from 'better-scroll' 
+import BScroll from 'better-scroll' 
+import {itemListenerMixin, backTopMixin} from "common/mixin";
 
   export default {
     name: "Category",
@@ -121,6 +124,7 @@
         scroll: null
       }
     },
+    mixins: [itemListenerMixin,  backTopMixin],
     //组件创建完后调用
     created() {
       // console.log(this.$ref.aaaa);
@@ -147,9 +151,10 @@
       })
     },
     methods: {
-      btnClick() {
-        console.log('btnClick')
-      }
+      // 回到顶部的按钮
+      backClick() {
+        this.$refs.scroll.scrollTo(0, 0, 500) 
+      },
     }
   }
 </script>
