@@ -7,7 +7,13 @@
             ref="scroll" 
             :probeType="3"
             @scroll="contentScroll"> 
-      
+
+      <!-- 测试是否正常：结果正常 -->
+      <!-- <ul>
+        <li v-for="item in $store.state.cartList" :key="item.index">
+            {{item}}
+        </li>
+      </ul> -->
       <!-- 轮播图 -->
       <detail-swiper :topImages="topImages"/>
       <!-- 商品基本信息的展示 -->
@@ -29,6 +35,7 @@
     <detail-bottom-bar @addCart="addToCart" />
     <!-- 回到顶部的组件 -->
     <back-top @click.native="backClick" v-show="isshowBackTop"></back-top>
+    <!-- <toast :message="message" :show="show" /> -->
   </div>
 </template>
 
@@ -45,10 +52,13 @@ import DetailBottomBar from './childComps/DetailBottomBar';
 import Scroll from 'components/common/scroll/Scroll.vue';
 import GoodsList from 'components/content/goods/GoodsList'
 import BackTop from 'components/content/backTop/BackTop'
+// import Toast from 'components/common/toast/Toast'
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
 import {debounce} from "common/utils"
 import {itemListenerMixin, backTopMixin} from "common/mixin"
+
+import { mapActions } from 'vuex'
 
 export default {
   name: "Detail", 
@@ -63,7 +73,8 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodsList,
-    BackTop
+    BackTop,
+    // Toast
   }, 
   mixins: [itemListenerMixin, backTopMixin],
   data() {
@@ -83,6 +94,8 @@ export default {
       currentIndex: 0,
       // imgItemListener: null //用于监听home和image,已经使用混入
       isshowBackTop: false,// 用来判断回到顶部是否出现
+      // message: '',
+      // show: false
    }
   },
   created() {
@@ -91,7 +104,7 @@ export default {
 
     // 2.根据iid请求详细数据
     getDetail(this.iid).then(res => {
-      console.log(res)
+      // console.log(res)
       const data = res.result;
       // 1.获取顶部的图片轮播数据
       this.topImages = data.itemInfo.topImages;
@@ -107,21 +120,6 @@ export default {
       if( data.rate.cRate !== 0 ){
         this.commentInfo = data.rate
       }
-
-      // this.$nextTick(() => {
-      //   // 根据最新的数据,对应的DOM是已经被渲染出来
-      //   // 但是图片依然是没有加载完(目前获取到的offsetTop不包含其中的图片)
-      //   this.themeTopYs = []
-
-      //   // 点击标题滚动到相应内容
-      //   this.themeTopYs.push(0)
-      //   this.themeTopYs.push(this.$refs.params.$el.offsetTop)
-      //   this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
-      //   this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
-        
-      //   console.log(this.themeTopYs)
-      // })
-
     })
 
     // 3.请求推荐数据
@@ -140,7 +138,7 @@ export default {
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
       this.themeTopYs.push(Number.MAX_VALUE)
 
-      console.log(this.themeTopYs)
+      // console.log(this.themeTopYs)
     })
   },
   mounted() {
@@ -155,6 +153,8 @@ export default {
     this.$bus.$off('itemImgLoad', this.imgItemListener);
   },
   methods: {
+    // 映射函数，这样可以通过不调用使用下面的addCart
+    ...mapActions(['addCart']),
   // 3.页面商品详情图片加载
     goodsInfoImgLoad() {
       this.refresh;
@@ -190,16 +190,25 @@ export default {
       // 1.获取购物车需要展示的信息
       const product = {};
       product.image = this.topImages[0];
-      product.title = this.goodsInfo.title;
-      product.desc = this.goodsInfo.desc;
-      product.price = this.goodsInfo.realPrice;
-      product.iid = this.iid;
+      product.title = this.baseInfo.title;
+      product.desc = this.baseInfo.desc;
+      product.price = this.baseInfo.realPrice;
+      product.iid = this.baseInfo.iid;
 
 
       // 2.将商品添加到购物车
       // 可以使用vuex保存商品
-      // this.$store.commit('addCart', product)
-      this.$store.dispatch('addCart', product)
+      this.$store.dispatch('addCart', product).then(res => {
+
+        this.$toast.show(res, 1500);
+      })
+
+      this.addCart(product).then(res => {
+        console.log(res)
+      })
+
+      // 3.添加到购物车
+
     }
   }
 }

@@ -1,12 +1,14 @@
 <template>
   <div class="cart-list">
-    <scroll class="content">
-      <!-- <li v-for="item in cartList" :key="item.index">{{item}}</li> -->
+    <scroll class="content" ref="scroll">
+
       <!-- 购物车商品的列表 -->
       <cart-list-item 
-            v-for="(item, index) in cartList" 
-            :product="item" 
-            :key="index"/>
+        v-for="(item, index) in cartList" 
+        :key="index"
+        :goodsItem="item" 
+      />
+      
     </scroll>
   </div>
 </template>
@@ -25,6 +27,11 @@ export default {
   },
   computed: {
     ...mapGetters(['cartList'])
+  },
+  activated() {
+    // 作用：用于在页面内容加载完成之后进行刷新
+    // 解决不能滚动的问题
+    this.$refs.scroll.refresh()
   }
 
 }
@@ -36,7 +43,7 @@ export default {
 }
 
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 40px);
   overflow: hidden;
 }
 </style>

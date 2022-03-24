@@ -1,7 +1,7 @@
 <template>
 <div class="wrapper" ref="aaaa">
   <ul class="content">
-    <button @click="btnClick">按钮</button>
+    <button>按钮</button>
     <li>分类列表1</li>
     <li>分类列表2</li>
     <li>分类列表3</li>
@@ -103,69 +103,18 @@
     <li>分类列表99</li>
     <li>分类列表100</li>
   </ul>
-  <!-- 回到顶部的组件 -->
-  <back-top @click.native="backClick" v-show="isshowBackTop"></back-top>
+  
 </div>
 
 </template>
 
 <script>
-// 引用只引用一次
-// 然后对它进行包装和封装
-// 这样如果这个better-scroll已经废弃的话
-// 不用修改封装,修改引用就可以了
-import BScroll from 'better-scroll' 
-import {itemListenerMixin, backTopMixin} from "common/mixin";
-
   export default {
     name: "Category",
-    data() {
-      return {
-        scroll: null
-      }
-    },
-    mixins: [itemListenerMixin,  backTopMixin],
-    //组件创建完后调用
-    created() {
-      // console.log(this.$ref.aaaa);
-      // console.log(document.querySelector('.wrapper'))
-      // // this.scroll = new BScroll('.wrapper', {
-
-      // // })
-    },
-    mounted() {
-      // console.log(this.$refs.aaaa)
-      // console.log(document.querySelector('wrapper'));
-      this.scroll = new BScroll(document.querySelector('.wrapper'), {
-        probeType: 3,
-        pullUpLoad: true,
-        click: true
-      })
-
-      this.scroll.on('scroll', (position) => {
-        console.log(position);
-      })
-
-      this.scroll.on('pullingUp', () => {
-        console.log('上拉加载更多');
-      })
-    },
-    methods: {
-      // 回到顶部的按钮
-      backClick() {
-        this.$refs.scroll.scrollTo(0, 0, 500) 
-      },
-    }
+    
   }
 </script>
 
 <style scoped>
- .wrapper {
-  height: 150px;
-  background-color: red;
-   
-  overflow: hidden;
-  /* 实现原生的滚动 */
-  /* overflow-y: scroll;  */
- }
+
 </style>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+
+<!--
+  1.app.messgae修改数据，Vue内部是如何监听message数据发生改变
+  *Object.defineProperty - >监听给对象属性的改变
+
+
+  2.当数据发生改变，Vue是如何知道要通知哪些人，界面发生刷新
+  *发布订阅者模式
+-->
+
+<script>
+  // 1.Object.defineProperty
+  const obj = {
+    message: '哈哈哈',
+    name: 'why'
+  }
+
+  // 首先，写到Vue对象内部，然后Vue内部会进行一个遍历：
+  Object.keys(obj).forEach(key => {
+    let value = obj[key]
+
+  // 然后调用definedProperty，对内部的对象进行设置
+  // definedProperty里面有两个方法：set和get方法
+  // set负责赋值，get负责获取数据
+
+    Object.defineProperty(obj, key, {
+      set(newValue) {
+        console.log('监听' + key + '改变')
+        // 告诉谁了？谁用告诉谁？谁在用了？
+        // 根据解析html代码，获取到哪些人用到了属性
+        value = newValue
+      },
+      get() {
+        console('获取' + key + '对应的值')
+        // 用的人都会调用get，就知道谁在用
+        // 一旦发生改变，就通知那个人
+        // 张三 get -> update
+        // 里斯 get -> update
+        // 王五 get -> update
+        
+        // 怎么知道谁在用？
+        // 系统有一个观察者对象
+        // 观察者对象里面有一个update()方法
+        // 一旦有人调用这俄格update()方法
+        // 就会给他创建一个watcher观察他的动向
+        // const w1 = new Watcher('张三')
+
+        // 如果发生改变，就会调用nootify对其进行通知
+        // dep.notify()
+        
+        return value
+      }
+    })
+  })
+
+  // 2.发布者订阅模式
+  // dep是发布者
+  class Dep {
+    constructor() {
+      this.subs = []
+    }
+
+    addSub(watcher){
+      this.subs.push(watcher)
+    }
+
+    notify(){
+      this.subs.forEach(item => {
+        item.update()
+      })
+    }
+  }
+
+
+  // 观察者/ 订阅者
+  class Watcher {
+    constructor(name) {
+      this.name = name;
+    }
+    update() {
+      console.log(this.name + '发生update');
+    }
+
+  }
+
+  const dep = new Dep()
+
+  const w1 = new Watcher('张三')
+  dep.addSub(w1)
+
+  const w2 = new Watcher('里斯')
+  dep.addSub(w2)
+
+  const w3 = new Watcher('王五')
+  dep.addSub(w3)
+
+  dep.notify()
+
+</script>
+
+
+<div id="app">
+  {{message}}
+</div>
+
+<script src="./node_modules/vue/dist/vue.js"></script>
+
+<script>
+  const app = new Vue({
+    el:'#app', 
+    data: {
+      message: '哈哈哈'
+    }
+  })
+
+</script>
+</body>
+</html>
